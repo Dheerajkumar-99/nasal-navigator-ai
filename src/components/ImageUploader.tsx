@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
-import { Upload, Image, X, FileImage } from "lucide-react";
-import { Button } from "./ui/button";
+import { Upload, X, FileImage, CloudUpload, Image } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ImageUploaderProps {
   onImageSelect: (file: File) => void;
@@ -57,67 +57,109 @@ const ImageUploader = ({ onImageSelect }: ImageUploaderProps) => {
 
   return (
     <div className="w-full">
-      {!preview ? (
-        <div
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-          className={`
-            relative border-2 border-dashed rounded-2xl p-12 text-center transition-all duration-300 cursor-pointer
-            ${isDragging 
-              ? "border-primary bg-primary/5 shadow-glow" 
-              : "border-border hover:border-primary/50 hover:bg-muted/50"
-            }
-          `}
-        >
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileInput}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-          />
-          
-          <div className="w-20 h-20 rounded-2xl gradient-hero flex items-center justify-center mx-auto mb-6 shadow-soft">
-            <Upload className="w-10 h-10 text-primary-foreground" />
-          </div>
-          
-          <h3 className="font-display text-xl font-semibold text-foreground mb-2">
-            Upload CT Scan or X-Ray
-          </h3>
-          <p className="text-muted-foreground mb-4">
-            Drag and drop your medical image here, or click to browse
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Supported formats: DICOM, PNG, JPG, JPEG
-          </p>
-        </div>
-      ) : (
-        <div className="relative rounded-2xl overflow-hidden bg-card border border-border shadow-card">
-          <div className="aspect-[4/3] relative">
-            <img
-              src={preview}
-              alt="Uploaded scan"
-              className="w-full h-full object-contain bg-foreground/5"
+      <AnimatePresence mode="wait">
+        {!preview ? (
+          <motion.div
+            key="uploader"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            className={`
+              relative border-2 border-dashed rounded-3xl p-12 text-center transition-all duration-300 cursor-pointer overflow-hidden
+              ${isDragging 
+                ? "border-primary bg-primary/5 shadow-glow-strong scale-[1.02]" 
+                : "border-border hover:border-primary/50 hover:bg-muted/30"
+              }
+            `}
+          >
+            {/* Animated background on drag */}
+            <div className={`absolute inset-0 gradient-hero transition-opacity duration-300 ${isDragging ? 'opacity-10' : 'opacity-0'}`} />
+            
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileInput}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             />
-            <button
-              onClick={clearPreview}
-              className="absolute top-4 right-4 w-10 h-10 rounded-full bg-background/90 backdrop-blur-sm flex items-center justify-center hover:bg-destructive hover:text-destructive-foreground transition-colors"
+            
+            <motion.div
+              animate={{ y: isDragging ? -10 : 0 }}
+              className="relative z-10"
             >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-          
-          <div className="p-4 border-t border-border flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center">
-              <FileImage className="w-5 h-5 text-secondary-foreground" />
+              <div className="w-24 h-24 rounded-3xl gradient-hero flex items-center justify-center mx-auto mb-8 shadow-glow">
+                <CloudUpload className="w-12 h-12 text-primary-foreground" />
+              </div>
+              
+              <h3 className="font-display text-2xl font-bold text-foreground mb-3">
+                Upload CT Scan or X-Ray
+              </h3>
+              <p className="text-muted-foreground mb-6 text-lg">
+                Drag and drop your medical image here, or click to browse
+              </p>
+              
+              <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
+                <span className="flex items-center gap-2">
+                  <Image className="w-4 h-4" />
+                  DICOM
+                </span>
+                <span className="flex items-center gap-2">
+                  <Image className="w-4 h-4" />
+                  PNG
+                </span>
+                <span className="flex items-center gap-2">
+                  <Image className="w-4 h-4" />
+                  JPG
+                </span>
+              </div>
+            </motion.div>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="preview"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="relative rounded-3xl overflow-hidden bg-card border border-border shadow-card"
+          >
+            <div className="aspect-[4/3] relative bg-foreground/5">
+              <img
+                src={preview}
+                alt="Uploaded scan"
+                className="w-full h-full object-contain"
+              />
+              
+              {/* Gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-foreground/20 to-transparent opacity-30" />
+              
+              {/* Remove button */}
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={clearPreview}
+                className="absolute top-4 right-4 w-12 h-12 rounded-2xl glass-strong flex items-center justify-center hover:bg-destructive hover:text-destructive-foreground transition-colors shadow-lg"
+              >
+                <X className="w-5 h-5" />
+              </motion.button>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-medium text-foreground truncate">{fileName}</p>
-              <p className="text-sm text-muted-foreground">Ready for analysis</p>
+            
+            <div className="p-6 border-t border-border flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl gradient-hero flex items-center justify-center shadow-soft">
+                <FileImage className="w-7 h-7 text-primary-foreground" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-display font-bold text-foreground truncate text-lg">{fileName}</p>
+                <p className="text-muted-foreground flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
+                  Ready for analysis
+                </p>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

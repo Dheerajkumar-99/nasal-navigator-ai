@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { CheckCircle, AlertTriangle, Activity, TrendingUp, Clock, Target } from "lucide-react";
+import { CheckCircle, AlertTriangle, Activity, TrendingUp, Clock, Target, Sparkles } from "lucide-react";
 import { Progress } from "./ui/progress";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface AnalysisResultsProps {
   isAnalyzing: boolean;
@@ -52,52 +53,76 @@ const AnalysisResults = ({ isAnalyzing, hasResult }: AnalysisResultsProps) => {
 
   if (!isAnalyzing && !hasResult) {
     return (
-      <div className="bg-card rounded-2xl border border-border p-8 text-center shadow-card">
-        <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
-          <Activity className="w-8 h-8 text-muted-foreground" />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-card rounded-3xl border border-border p-10 text-center shadow-card h-full flex flex-col items-center justify-center min-h-[400px]"
+      >
+        <div className="w-20 h-20 rounded-3xl bg-muted flex items-center justify-center mx-auto mb-6">
+          <Activity className="w-10 h-10 text-muted-foreground" />
         </div>
-        <h3 className="font-display text-lg font-semibold text-foreground mb-2">
+        <h3 className="font-display text-xl font-bold text-foreground mb-3">
           No Analysis Yet
         </h3>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground max-w-xs">
           Upload a CT scan or X-ray image to begin the AI-powered analysis
         </p>
-      </div>
+      </motion.div>
     );
   }
 
   if (isAnalyzing) {
     return (
-      <div className="bg-card rounded-2xl border border-border p-8 shadow-card">
-        <div className="flex items-center gap-4 mb-6">
-          <div className="w-12 h-12 rounded-xl gradient-hero flex items-center justify-center animate-pulse-soft">
-            <Activity className="w-6 h-6 text-primary-foreground" />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bg-card rounded-3xl border border-border p-10 shadow-card h-full"
+      >
+        <div className="flex items-center gap-5 mb-8">
+          <div className="relative">
+            <div className="w-16 h-16 rounded-2xl gradient-hero flex items-center justify-center">
+              <Activity className="w-8 h-8 text-primary-foreground" />
+            </div>
+            <motion.div
+              animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0, 0.5] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="absolute -inset-2 gradient-hero rounded-3xl"
+            />
           </div>
           <div>
-            <h3 className="font-display text-lg font-semibold text-foreground">
+            <h3 className="font-display text-xl font-bold text-foreground">
               Analyzing Image
             </h3>
-            <p className="text-sm text-muted-foreground">{steps[currentStep]}</p>
+            <p className="text-muted-foreground">{steps[currentStep]}</p>
           </div>
         </div>
 
-        <Progress value={progress} className="h-2 mb-4" />
+        <div className="relative mb-6">
+          <Progress value={progress} className="h-3" />
+          <motion.div
+            className="absolute -top-1 h-5 w-5 rounded-full gradient-hero shadow-glow"
+            style={{ left: `calc(${progress}% - 10px)` }}
+          />
+        </div>
 
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {steps.map((step, index) => (
-            <div
+            <motion.div
               key={index}
-              className={`text-xs text-center py-2 px-1 rounded-lg transition-colors ${
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className={`text-xs text-center py-3 px-2 rounded-xl transition-all duration-300 ${
                 index <= currentStep
-                  ? "bg-primary/10 text-primary"
+                  ? "gradient-hero text-primary-foreground shadow-soft"
                   : "bg-muted text-muted-foreground"
               }`}
             >
               {step.replace("...", "")}
-            </div>
+            </motion.div>
           ))}
         </div>
-      </div>
+      </motion.div>
     );
   }
 
@@ -115,80 +140,105 @@ const AnalysisResults = ({ isAnalyzing, hasResult }: AnalysisResultsProps) => {
   };
 
   return (
-    <div className="bg-card rounded-2xl border border-border shadow-card overflow-hidden">
-      {/* Header */}
-      <div className={`p-6 ${mockResult.detected ? "bg-warning/10" : "bg-success/10"}`}>
-        <div className="flex items-center gap-4">
-          <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${
-            mockResult.detected ? "bg-warning text-warning-foreground" : "bg-success text-success-foreground"
-          }`}>
-            {mockResult.detected ? (
-              <AlertTriangle className="w-7 h-7" />
-            ) : (
-              <CheckCircle className="w-7 h-7" />
-            )}
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bg-card rounded-3xl border border-border shadow-card overflow-hidden"
+      >
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className={`p-8 ${mockResult.detected ? "bg-gradient-to-r from-warning/10 to-warning/5" : "bg-gradient-to-r from-success/10 to-success/5"}`}
+        >
+          <div className="flex items-center gap-5">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", delay: 0.3 }}
+              className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg ${
+                mockResult.detected ? "bg-warning text-warning-foreground" : "bg-success text-success-foreground"
+              }`}
+            >
+              {mockResult.detected ? (
+                <AlertTriangle className="w-8 h-8" />
+              ) : (
+                <CheckCircle className="w-8 h-8" />
+              )}
+            </motion.div>
+            <div>
+              <h3 className="font-display text-2xl font-bold text-foreground flex items-center gap-2">
+                {mockResult.detected ? "Deviation Detected" : "No Deviation Detected"}
+                <Sparkles className="w-5 h-5 text-primary" />
+              </h3>
+              <p className="text-muted-foreground">
+                Analysis completed successfully
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="font-display text-xl font-bold text-foreground">
-              {mockResult.detected ? "Deviation Detected" : "No Deviation Detected"}
-            </h3>
-            <p className="text-muted-foreground">
-              Analysis completed successfully
-            </p>
-          </div>
-        </div>
-      </div>
+        </motion.div>
 
-      {/* Metrics */}
-      <div className="p-6 grid grid-cols-3 gap-4 border-b border-border">
-        <div className="text-center">
-          <div className="flex items-center justify-center gap-1 text-primary mb-1">
-            <Target className="w-4 h-4" />
-            <span className="text-sm font-medium">Confidence</span>
-          </div>
-          <div className="font-display text-2xl font-bold text-foreground">
-            {mockResult.confidence}%
-          </div>
-        </div>
-
-        <div className="text-center border-x border-border">
-          <div className="flex items-center justify-center gap-1 text-warning mb-1">
-            <TrendingUp className="w-4 h-4" />
-            <span className="text-sm font-medium">Severity</span>
-          </div>
-          <div className="font-display text-2xl font-bold text-foreground">
-            {mockResult.severity}
-          </div>
-        </div>
-
-        <div className="text-center">
-          <div className="flex items-center justify-center gap-1 text-accent mb-1">
-            <Clock className="w-4 h-4" />
-            <span className="text-sm font-medium">Angle</span>
-          </div>
-          <div className="font-display text-2xl font-bold text-foreground">
-            {mockResult.deviationAngle}°
-          </div>
-        </div>
-      </div>
-
-      {/* Recommendations */}
-      <div className="p-6">
-        <h4 className="font-display font-semibold text-foreground mb-4">
-          Recommendations
-        </h4>
-        <ul className="space-y-3">
-          {mockResult.recommendations.map((rec, index) => (
-            <li key={index} className="flex items-start gap-3">
-              <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-xs font-medium text-primary">{index + 1}</span>
+        {/* Metrics */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="p-8 grid grid-cols-3 gap-6 border-b border-border"
+        >
+          {[
+            { icon: Target, label: "Confidence", value: `${mockResult.confidence}%`, color: "primary" },
+            { icon: TrendingUp, label: "Severity", value: mockResult.severity, color: "warning" },
+            { icon: Clock, label: "Angle", value: `${mockResult.deviationAngle}°`, color: "accent" },
+          ].map((metric, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 + index * 0.1 }}
+              className="text-center"
+            >
+              <div className={`flex items-center justify-center gap-2 text-${metric.color} mb-2`}>
+                <metric.icon className="w-4 h-4" />
+                <span className="text-sm font-medium">{metric.label}</span>
               </div>
-              <span className="text-muted-foreground">{rec}</span>
-            </li>
+              <div className="font-display text-3xl font-bold text-foreground">
+                {metric.value}
+              </div>
+            </motion.div>
           ))}
-        </ul>
-      </div>
-    </div>
+        </motion.div>
+
+        {/* Recommendations */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+          className="p-8"
+        >
+          <h4 className="font-display font-bold text-foreground mb-6 text-lg">
+            Recommendations
+          </h4>
+          <ul className="space-y-4">
+            {mockResult.recommendations.map((rec, index) => (
+              <motion.li
+                key={index}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.7 + index * 0.1 }}
+                className="flex items-start gap-4 p-4 rounded-2xl bg-muted/50 hover:bg-muted transition-colors"
+              >
+                <div className="w-8 h-8 rounded-xl gradient-hero flex items-center justify-center flex-shrink-0 shadow-soft">
+                  <span className="text-sm font-bold text-primary-foreground">{index + 1}</span>
+                </div>
+                <span className="text-foreground leading-relaxed">{rec}</span>
+              </motion.li>
+            ))}
+          </ul>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
   );
 };
 

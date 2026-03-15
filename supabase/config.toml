@@ -1,1 +1,4 @@
 project_id = "gbswmibgclyepqbhmbxe"
+
+[functions.analyze-septum]
+verify_jwt = false

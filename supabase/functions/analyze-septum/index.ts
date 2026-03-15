@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { imageBase64 } = await req.json();
+    const { imageBase64, mimeType = "image/jpeg" } = await req.json();
 
     if (!imageBase64) {
       return new Response(

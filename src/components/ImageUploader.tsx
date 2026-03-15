@@ -3,7 +3,7 @@ import { Upload, X, FileImage, CloudUpload, Image } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface ImageUploaderProps {
-  onImageSelect: (file: File) => void;
+  onImageSelect: (file: File | null) => void;
 }
 
 const ImageUploader = ({ onImageSelect }: ImageUploaderProps) => {
@@ -53,6 +53,7 @@ const ImageUploader = ({ onImageSelect }: ImageUploaderProps) => {
   const clearPreview = () => {
     setPreview(null);
     setFileName(null);
+    onImageSelect(null);
   };
 
   return (

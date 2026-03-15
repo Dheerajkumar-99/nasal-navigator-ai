@@ -67,11 +67,11 @@ const HeroSection = () => {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="flex flex-col sm:flex-row gap-4 justify-center mb-20"
             >
-              <Button variant="hero" size="xl" className="group">
+              <Button variant="hero" size="xl" className="group" onClick={() => document.getElementById('analysis')?.scrollIntoView({ behavior: 'smooth' })}>
                 Upload Scan
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
-              <Button variant="medical" size="xl">
+              <Button variant="medical" size="xl" onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}>
                 Learn More
               </Button>
             </motion.div>

@@ -24,7 +24,7 @@ const AnalysisSection = () => {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const { toast } = useToast();
 
-  const handleImageSelect = (file: File) => {
+  const handleImageSelect = (file: File | null) => {
     setSelectedFile(file);
     setResult(null);
   };

@@ -53,6 +53,7 @@ const ImageUploader = ({ onImageSelect }: ImageUploaderProps) => {
   const clearPreview = () => {
     setPreview(null);
     setFileName(null);
+    onImageSelect(null);
   };
 
   return (

@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { imageBase64 } = await req.json();
+    const { imageBase64, mimeType = "image/jpeg" } = await req.json();
 
     if (!imageBase64) {
       return new Response(
@@ -65,7 +65,7 @@ If the image is not a medical scan, still respond with the JSON but set detected
                 {
                   type: "image_url",
                   image_url: {
-                    url: `data:image/jpeg;base64,${imageBase64}`,
+                    url: `data:${mimeType};base64,${imageBase64}`,
                   },
                 },
               ],

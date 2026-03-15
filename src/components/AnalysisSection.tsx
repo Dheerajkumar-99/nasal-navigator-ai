@@ -29,12 +29,13 @@ const AnalysisSection = () => {
     setResult(null);
   };
 
-  const fileToBase64 = (file: File): Promise<string> => {
+  const fileToBase64 = (file: File): Promise<{ base64: string; mimeType: string }> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => {
-        const base64 = (reader.result as string).split(",")[1];
-        resolve(base64);
+        const dataUrl = reader.result as string;
+        const base64 = dataUrl.split(",")[1];
+        resolve({ base64, mimeType: file.type || "image/jpeg" });
       };
       reader.onerror = reject;
       reader.readAsDataURL(file);
@@ -48,10 +49,10 @@ const AnalysisSection = () => {
     setResult(null);
 
     try {
-      const imageBase64 = await fileToBase64(selectedFile);
+      const { base64: imageBase64, mimeType } = await fileToBase64(selectedFile);
 
       const { data, error } = await supabase.functions.invoke("analyze-septum", {
-        body: { imageBase64 },
+        body: { imageBase64, mimeType },
       });
 
       if (error) {

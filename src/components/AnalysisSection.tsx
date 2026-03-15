@@ -29,12 +29,13 @@ const AnalysisSection = () => {
     setResult(null);
   };
 
-  const fileToBase64 = (file: File): Promise<string> => {
+  const fileToBase64 = (file: File): Promise<{ base64: string; mimeType: string }> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => {
-        const base64 = (reader.result as string).split(",")[1];
-        resolve(base64);
+        const dataUrl = reader.result as string;
+        const base64 = dataUrl.split(",")[1];
+        resolve({ base64, mimeType: file.type || "image/jpeg" });
       };
       reader.onerror = reject;
       reader.readAsDataURL(file);

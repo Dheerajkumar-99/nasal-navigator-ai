@@ -4,28 +4,75 @@ import AnalysisResults from "./AnalysisResults";
 import { Button } from "./ui/button";
 import { Scan, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+
+export interface AnalysisResult {
+  detected: boolean;
+  confidence: number;
+  severity: string;
+  deviationAngle: number;
+  deviationType: string;
+  affectedSide: string;
+  recommendations: string[];
+  findings: string;
+}
 
 const AnalysisSection = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [hasResult, setHasResult] = useState(false);
+  const [result, setResult] = useState<AnalysisResult | null>(null);
+  const { toast } = useToast();
 
   const handleImageSelect = (file: File) => {
     setSelectedFile(file);
-    setHasResult(false);
+    setResult(null);
   };
 
-  const handleAnalyze = () => {
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = (reader.result as string).split(",")[1];
+        resolve(base64);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleAnalyze = async () => {
     if (!selectedFile) return;
-    
+
     setIsAnalyzing(true);
-    setHasResult(false);
-    
-    // Simulate analysis time
-    setTimeout(() => {
+    setResult(null);
+
+    try {
+      const imageBase64 = await fileToBase64(selectedFile);
+
+      const { data, error } = await supabase.functions.invoke("analyze-septum", {
+        body: { imageBase64 },
+      });
+
+      if (error) {
+        throw new Error(error.message || "Analysis failed");
+      }
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      setResult(data as AnalysisResult);
+    } catch (err: any) {
+      console.error("Analysis error:", err);
+      toast({
+        title: "Analysis Failed",
+        description: err.message || "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
       setIsAnalyzing(false);
-      setHasResult(true);
-    }, 5000);
+    }
   };
 
   return (
@@ -88,7 +135,7 @@ const AnalysisSection = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.3 }}
           >
-            <AnalysisResults isAnalyzing={isAnalyzing} hasResult={hasResult} />
+            <AnalysisResults isAnalyzing={isAnalyzing} result={result} />
           </motion.div>
         </div>
       </div>

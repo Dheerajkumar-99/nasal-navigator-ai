@@ -1,21 +1,22 @@
 import { useState, useEffect } from "react";
-import { CheckCircle, AlertTriangle, Activity, TrendingUp, Clock, Target, Sparkles } from "lucide-react";
+import { CheckCircle, AlertTriangle, Activity, TrendingUp, Clock, Target, Sparkles, MapPin, RotateCcw } from "lucide-react";
 import { Progress } from "./ui/progress";
 import { motion, AnimatePresence } from "framer-motion";
+import type { AnalysisResult } from "./AnalysisSection";
 
 interface AnalysisResultsProps {
   isAnalyzing: boolean;
-  hasResult: boolean;
+  result: AnalysisResult | null;
 }
 
-const AnalysisResults = ({ isAnalyzing, hasResult }: AnalysisResultsProps) => {
+const AnalysisResults = ({ isAnalyzing, result }: AnalysisResultsProps) => {
   const [progress, setProgress] = useState(0);
   const [currentStep, setCurrentStep] = useState(0);
 
   const steps = [
     "Preprocessing image...",
     "Extracting features...",
-    "Running CNN analysis...",
+    "Running AI analysis...",
     "Generating report...",
   ];
 
@@ -26,13 +27,13 @@ const AnalysisResults = ({ isAnalyzing, hasResult }: AnalysisResultsProps) => {
       
       const progressInterval = setInterval(() => {
         setProgress((prev) => {
-          if (prev >= 100) {
+          if (prev >= 95) {
             clearInterval(progressInterval);
-            return 100;
+            return 95;
           }
-          return prev + 2;
+          return prev + 1;
         });
-      }, 100);
+      }, 200);
 
       const stepInterval = setInterval(() => {
         setCurrentStep((prev) => {
@@ -42,16 +43,18 @@ const AnalysisResults = ({ isAnalyzing, hasResult }: AnalysisResultsProps) => {
           }
           return prev + 1;
         });
-      }, 1250);
+      }, 3000);
 
       return () => {
         clearInterval(progressInterval);
         clearInterval(stepInterval);
       };
+    } else if (result) {
+      setProgress(100);
     }
   }, [isAnalyzing]);
 
-  if (!isAnalyzing && !hasResult) {
+  if (!isAnalyzing && !result) {
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -126,18 +129,7 @@ const AnalysisResults = ({ isAnalyzing, hasResult }: AnalysisResultsProps) => {
     );
   }
 
-  // Mock results
-  const mockResult = {
-    detected: true,
-    confidence: 94.7,
-    severity: "Moderate",
-    deviationAngle: 12.5,
-    recommendations: [
-      "Consultation with an ENT specialist recommended",
-      "Further imaging may be required for surgical planning",
-      "Monitor for symptoms of nasal obstruction",
-    ],
-  };
+  if (!result) return null;
 
   return (
     <AnimatePresence>
@@ -151,7 +143,7 @@ const AnalysisResults = ({ isAnalyzing, hasResult }: AnalysisResultsProps) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className={`p-8 ${mockResult.detected ? "bg-gradient-to-r from-warning/10 to-warning/5" : "bg-gradient-to-r from-success/10 to-success/5"}`}
+          className={`p-8 ${result.detected ? "bg-gradient-to-r from-warning/10 to-warning/5" : "bg-gradient-to-r from-success/10 to-success/5"}`}
         >
           <div className="flex items-center gap-5">
             <motion.div
@@ -159,10 +151,10 @@ const AnalysisResults = ({ isAnalyzing, hasResult }: AnalysisResultsProps) => {
               animate={{ scale: 1 }}
               transition={{ type: "spring", delay: 0.3 }}
               className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg ${
-                mockResult.detected ? "bg-warning text-warning-foreground" : "bg-success text-success-foreground"
+                result.detected ? "bg-warning text-warning-foreground" : "bg-success text-success-foreground"
               }`}
             >
-              {mockResult.detected ? (
+              {result.detected ? (
                 <AlertTriangle className="w-8 h-8" />
               ) : (
                 <CheckCircle className="w-8 h-8" />
@@ -170,7 +162,7 @@ const AnalysisResults = ({ isAnalyzing, hasResult }: AnalysisResultsProps) => {
             </motion.div>
             <div>
               <h3 className="font-display text-2xl font-bold text-foreground flex items-center gap-2">
-                {mockResult.detected ? "Deviation Detected" : "No Deviation Detected"}
+                {result.detected ? "Deviation Detected" : "No Deviation Detected"}
                 <Sparkles className="w-5 h-5 text-primary" />
               </h3>
               <p className="text-muted-foreground">
@@ -180,17 +172,32 @@ const AnalysisResults = ({ isAnalyzing, hasResult }: AnalysisResultsProps) => {
           </div>
         </motion.div>
 
+        {/* Findings */}
+        {result.findings && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.35 }}
+            className="px-8 pt-6"
+          >
+            <p className="text-foreground/80 leading-relaxed bg-muted/50 p-4 rounded-2xl text-sm">
+              {result.findings}
+            </p>
+          </motion.div>
+        )}
+
         {/* Metrics */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="p-8 grid grid-cols-3 gap-6 border-b border-border"
+          className="p-8 grid grid-cols-2 md:grid-cols-4 gap-4 border-b border-border"
         >
           {[
-            { icon: Target, label: "Confidence", value: `${mockResult.confidence}%`, color: "primary" },
-            { icon: TrendingUp, label: "Severity", value: mockResult.severity, color: "warning" },
-            { icon: Clock, label: "Angle", value: `${mockResult.deviationAngle}°`, color: "accent" },
+            { icon: Target, label: "Confidence", value: `${result.confidence}%`, color: "text-primary" },
+            { icon: TrendingUp, label: "Severity", value: result.severity, color: "text-warning" },
+            { icon: Clock, label: "Angle", value: `${result.deviationAngle}°`, color: "text-accent-foreground" },
+            { icon: RotateCcw, label: "Type", value: result.deviationType, color: "text-primary" },
           ].map((metric, index) => (
             <motion.div
               key={index}
@@ -199,16 +206,29 @@ const AnalysisResults = ({ isAnalyzing, hasResult }: AnalysisResultsProps) => {
               transition={{ delay: 0.5 + index * 0.1 }}
               className="text-center"
             >
-              <div className={`flex items-center justify-center gap-2 text-${metric.color} mb-2`}>
+              <div className={`flex items-center justify-center gap-2 ${metric.color} mb-2`}>
                 <metric.icon className="w-4 h-4" />
                 <span className="text-sm font-medium">{metric.label}</span>
               </div>
-              <div className="font-display text-3xl font-bold text-foreground">
+              <div className="font-display text-2xl font-bold text-foreground">
                 {metric.value}
               </div>
             </motion.div>
           ))}
         </motion.div>
+
+        {/* Affected Side */}
+        {result.affectedSide && result.affectedSide !== "None" && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.55 }}
+            className="px-8 pt-6 flex items-center gap-3"
+          >
+            <MapPin className="w-5 h-5 text-primary" />
+            <span className="text-foreground font-medium">Affected Side: {result.affectedSide}</span>
+          </motion.div>
+        )}
 
         {/* Recommendations */}
         <motion.div
@@ -221,7 +241,7 @@ const AnalysisResults = ({ isAnalyzing, hasResult }: AnalysisResultsProps) => {
             Recommendations
           </h4>
           <ul className="space-y-4">
-            {mockResult.recommendations.map((rec, index) => (
+            {result.recommendations.map((rec, index) => (
               <motion.li
                 key={index}
                 initial={{ opacity: 0, x: -20 }}

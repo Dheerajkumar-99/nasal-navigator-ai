@@ -67,7 +67,7 @@ const Header = () => {
         </nav>
 
         <div className="flex items-center gap-4">
-          <Button variant="hero" size="default" className="hidden md:flex" onClick={() => window.location.href = '/auth'}>
+          <Button variant="hero" size="default" className="hidden md:flex" onClick={() => navigate('/auth')}>
             Sign In
           </Button>
           

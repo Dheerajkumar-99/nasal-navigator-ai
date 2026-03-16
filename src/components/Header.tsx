@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { Activity, Menu, X } from "lucide-react";
 import { Button } from "./ui/button";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
+  const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -65,7 +67,7 @@ const Header = () => {
         </nav>
 
         <div className="flex items-center gap-4">
-          <Button variant="hero" size="default" className="hidden md:flex" onClick={() => window.location.href = '/auth'}>
+          <Button variant="hero" size="default" className="hidden md:flex" onClick={() => navigate('/auth')}>
             Sign In
           </Button>
           
@@ -98,7 +100,7 @@ const Header = () => {
                   {link.label}
                 </a>
               ))}
-              <Button variant="hero" size="lg" className="mt-2" onClick={() => window.location.href = '/auth'}>
+              <Button variant="hero" size="lg" className="mt-2" onClick={() => navigate('/auth')}>
                 Sign In
               </Button>
             </div>

@@ -100,7 +100,7 @@ const Header = () => {
                   {link.label}
                 </a>
               ))}
-              <Button variant="hero" size="lg" className="mt-2" onClick={() => window.location.href = '/auth'}>
+              <Button variant="hero" size="lg" className="mt-2" onClick={() => navigate('/auth')}>
                 Sign In
               </Button>
             </div>

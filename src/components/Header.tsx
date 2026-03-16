@@ -65,8 +65,8 @@ const Header = () => {
         </nav>
 
         <div className="flex items-center gap-4">
-          <Button variant="hero" size="default" className="hidden md:flex">
-            Get Started
+          <Button variant="hero" size="default" className="hidden md:flex" onClick={() => window.location.href = '/auth'}>
+            Sign In
           </Button>
           
           <button
@@ -98,8 +98,8 @@ const Header = () => {
                   {link.label}
                 </a>
               ))}
-              <Button variant="hero" size="lg" className="mt-2">
-                Get Started
+              <Button variant="hero" size="lg" className="mt-2" onClick={() => window.location.href = '/auth'}>
+                Sign In
               </Button>
             </div>
           </motion.div>

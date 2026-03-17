@@ -98,7 +98,7 @@ const ImageUploader = ({ onImageSelect }: ImageUploaderProps) => {
                 Upload CT Scan or X-Ray
               </h3>
               <p className="text-muted-foreground mb-6 text-lg">
-                Drag and drop your medical image here, or click to browse
+                Click to upload your medical image
               </p>
               
               <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">

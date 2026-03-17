@@ -83,7 +83,7 @@ const ImageUploader = ({ onImageSelect }: ImageUploaderProps) => {
               type="file"
               accept="image/*"
               onChange={handleFileInput}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
             />
             
             <motion.div
